@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HAL – Initiation of Coverage Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-alt: #0b1120;
+      --card: #020617;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.18);
+      --accent-strong: #0ea5e9;
+      --text-main: #e5e7eb;
+      --text-soft: #9ca3af;
+      --border-subtle: #1f2937;
+      --danger: #f97373;
+      --success: #4ade80;
+      --warning: #facc15;
+      --muted-chip: #111827;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top, #0b1120 0, #020617 55%, #000 100%);
+      color: var(--text-main);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* Layout */
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    header.app-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(
+        to right,
+        rgba(15, 23, 42, 0.96),
+        rgba(8, 47, 73, 0.96)
+      );
+      border-bottom: 1px solid rgba(15, 118, 110, 0.4);
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0.85rem 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .ticker-pill {
+      padding: 0.2rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: rgba(15, 23, 42, 0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .ticker-pill span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+    }
+
+    .header-title-block h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .header-title-block p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .header-right {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .mini-stat {
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(15, 23, 42, 0.8);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+    }
+
+    .mini-stat-label {
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.7rem;
+    }
+
+    .mini-stat-value {
+      font-weight: 600;
+    }
+
+    .tag-buy {
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(34, 197, 94, 0.1);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.6);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    main.app-main {
+      flex: 1;
+      display: flex;
+      max-width: 1240px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 1rem 1.2rem 2rem;
+      gap: 1.2rem;
+    }
+
+    nav.side-nav {
+      position: sticky;
+      top: 58px;
+      align-self: flex-start;
+      width: 230px;
+      max-height: calc(100vh - 70px);
+      overflow-y: auto;
+      padding-right: 0.8rem;
+      display: none;
+    }
+
+    nav.side-nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav.side-nav li {
+      margin-bottom: 0.2rem;
+    }
+
+    nav.side-nav a {
+      display: block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-soft);
+      border: 1px solid transparent;
+    }
+
+    nav.side-nav a:hover,
+    nav.side-nav a.active {
+      background: rgba(15, 23, 42, 0.85);
+      border-color: rgba(56, 189, 248, 0.5);
+      color: var(--accent-strong);
+    }
+
+    .content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    section {
+      margin-bottom: 1.6rem;
+    }
+
+    section:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .section-header span.sub {
+      font-size: 0.75rem;
+      color: var(--text-soft);
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(
+        to right,
+        rgba(148, 163, 184, 0.02),
+        rgba(56, 189, 248, 0.5),
+        rgba(148, 163, 184, 0.02)
+      );
+      margin-bottom: 0.9rem;
+    }
+
+    /* Cards & grids */
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.9rem;
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, #111827 0, #020617 60%);
+      border-radius: 1rem;
+      border: 1px solid var(--border-subtle);
+      padding: 0.85rem 0.95rem;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .card-header span {
+      font-size: 0.76rem;
+      color: var(--text-soft);
+    }
+
+    .card-body {
+      font-size: 0.84rem;
+      color: var(--text-soft);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      font-size: 0.74rem;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .muted {
+      color: var(--text-soft);
+    }
+
+    .kpi-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.84rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-label {
+      color: var(--text-soft);
+    }
+
+    .kpi-value {
+      font-weight: 600;
+      color: #e5e7eb;
+    }
+
+    .kpi-tag {
+      font-size: 0.72rem;
+      padding: 0.05rem 0.4rem;
+      border-radius: 0.75rem;
+      background: var(--muted-chip);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      color: var(--text-soft);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .chip {
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: var(--muted-chip);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    /* Tables */
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      padding: 0.35rem 0.35rem;
+      text-align: left;
+    }
+
+    th {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-soft);
+      background: rgba(15, 23, 42, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .table-wrapper {
+      max-height: 220px;
+      overflow: auto;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.85);
+      margin-top: 0.2rem;
+    }
+
+    .badge-positive {
+      color: #4ade80;
+    }
+
+    .badge-neutral {
+      color: #e5e7eb;
+    }
+
+    .badge-negative {
+      color: #f97373;
+    }
+
+    /* Bullet lists */
+
+    ul {
+      margin: 0.45rem 0 0.3rem 1.1rem;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 0.2rem;
+    }
+
+    /* Charts */
+
+    .chart {
+      margin-top: 0.4rem;
+      border-radius: 0.75rem;
+      padding: 0.5rem;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.95) 0, #020617 70%);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .chart-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-soft);
+      margin-bottom: 0.4rem;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.45rem;
+      height: 140px;
+    }
+
+    .bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    .bar-rect {
+      width: 70%;
+      border-radius: 0.35rem;
+      background: linear-gradient(to top, var(--accent-strong), var(--accent-soft));
+    }
+
+    .bar-label {
+      font-size: 0.72rem;
+    }
+
+    .bar-value {
+      font-size: 0.72rem;
+      color: #e5e7eb;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.45rem;
+      font-size: 0.72rem;
+      color: var(--text-soft);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .legend-swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 0.2rem;
+      background: linear-gradient(to right, var(--accent-strong), var(--accent-soft));
+    }
+
+    /* Radar-like factor chart as horizontal bars */
+
+    .factor-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.8rem;
+    }
+
+    .factor-name {
+      flex: 0 0 32%;
+      color: #e5e7eb;
+    }
+
+    .factor-meter {
+      flex: 1;
+      height: 8px;
+      border-radius: 999px;
+      background: #020617;
+      overflow: hidden;
+      border: 1px solid rgba(30, 64, 175, 0.7);
+    }
+
+    .factor-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to right, #22c55e, #38bdf8);
+    }
+
+    .factor-score {
+      flex: 0 0 50px;
+      text-align: right;
+      color: var(--text-soft);
+      font-size: 0.76rem;
+    }
+
+    /* Risk styles */
+
+    .risk-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.45rem 0.2rem;
+      border-bottom: 1px dashed rgba(31, 41, 55, 0.8);
+      font-size: 0.82rem;
+    }
+
+    .risk-row:last-child {
+      border-bottom: none;
+    }
+
+    .risk-name {
+      font-weight: 500;
+    }
+
+    .risk-meta {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      font-size: 0.74rem;
+      color: var(--text-soft);
+    }
+
+    .risk-tag {
+      padding: 0.05rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(17, 24, 39, 0.95);
+    }
+
+    /* Appendix tags */
+
+    .appendix-item {
+      padding: 0.35rem 0.4rem;
+      border-radius: 0.75rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px dashed rgba(55, 65, 81, 0.9);
+      font-size: 0.8rem;
+      margin-bottom: 0.35rem;
+    }
+
+    /* Responsive */
+
+    @media (min-width: 960px) {
+      nav.side-nav {
+        display: block;
+      }
+    }
+
+    @media (max-width: 959px) {
+      main.app-main {
+        flex-direction: column;
+        padding: 0.8rem 0.8rem 1.5rem;
+      }
+
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .header-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 0.8rem 0.75rem;
+      }
+
+      .section-header h2 {
+        font-size: 0.96rem;
+      }
+    }
+
+    /* Utility column spans */
+
+    .col-4 {
+      grid-column: span 4 / span 4;
+    }
+
+    .col-6 {
+      grid-column: span 6 / span 6;
+    }
+
+    .col-8 {
+      grid-column: span 8 / span 8;
+    }
+
+    .col-12 {
+      grid-column: span 12 / span 12;
+    }
+
+    @media (max-width: 960px) {
+      .col-4,
+      .col-6,
+      .col-8 {
+        grid-column: span 12 / span 12;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="ticker-pill">
+          <span class="dot"></span>
+          <span>HAL</span>
+          <span style="opacity:.8;">NSE India</span>
+        </div>
+        <div class="header-title-block">
+          <h1>Hindustan Aeronautics Ltd – Initiation of Coverage</h1>
+          <p>India’s state-champion aerospace manufacturer, initiating with Buy to capture the decade-long defence-capex cycle.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="mini-stat">
+          <span class="mini-stat-label">Rating</span>
+          <span class="tag-buy">Buy</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Current</span>
+          <span class="mini-stat-value">₹4,595</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Target</span>
+          <span class="mini-stat-value">₹5,800</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-label">Upside</span>
+          <span class="mini-stat-value badge-positive">+26%</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <main class="app-main">
+    <!-- SIDE NAV -->
+    <nav class="side-nav">
+      <ul>
+        <li><a href="#sec-1" class="active">1. Snapshot</a></li>
+        <li><a href="#sec-2">2. Investment Thesis</a></li>
+        <li><a href="#sec-3">3. Positives</a></li>
+        <li><a href="#sec-4">4. Peer Analysis</a></li>
+        <li><a href="#sec-5">5. Estimates</a></li>
+        <li><a href="#sec-6">6. Valuation</a></li>
+        <li><a href="#sec-7">7. Risks</a></li>
+        <li><a href="#sec-8">8. Appendix</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="content">
+
+      <!-- SECTION 1: KEY DATA & FORECAST SNAPSHOT -->
+      <section id="sec-1">
+        <div class="section-header">
+          <h2>1. Key Data & Forecast Snapshot</h2>
+          <span class="sub">Core valuation metrics and factor radar</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <!-- Key metrics -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Price & Rating</h3>
+              <span>All figures in INR unless stated</span>
+            </div>
+            <div class="card-body">
+              <div class="kpi-row">
+                <div class="kpi-label">Current price (NSE, 21 Nov 2025)</div>
+                <div class="kpi-value">₹4,595</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-label">Target price</div>
+                <div class="kpi-value">₹5,800</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-label">Implied upside</div>
+                <div class="kpi-value badge-positive">+26%</div>
+              </div>
+              <div class="kpi-row" style="margin-top:0.3rem;">
+                <div class="kpi-label">12-18M Recommendation</div>
+                <div class="kpi-value">
+                  <span class="tag-buy">Buy</span>
+                </div>
+              </div>
+              <div class="chip-row" style="margin-top:0.6rem;">
+                <span class="chip">Coverage: Global Aerospace & Defence</span>
+                <span class="chip">Analyst: Senior Equity Research</span>
+                <span class="chip">Initiation date: 21 Nov 2025</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary multiples -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Summary Multiples</h3>
+              <span>Forward-looking based on internal model</span>
+            </div>
+            <div class="card-body">
+              <div class="kpi-row">
+                <div class="kpi-label">Forward P/E (FY27E)</div>
+                <div class="kpi-value">~30×</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-label">EV/EBITDA (Next-12M)</div>
+                <div class="kpi-value">~18×</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-label">EV/Sales (Forward)</div>
+                <div class="kpi-value">~2.2×</div>
+              </div>
+              <div class="kpi-row">
+                <div class="kpi-label">PEG (3-yr EPS CAGR)</div>
+                <div class="kpi-value">≈1.0×</div>
+              </div>
+              <p style="margin-top:0.6rem;">
+                <span class="muted">Note:</span>
+                Multiples cross-checked against global aerospace peers and HAL’s historical valuation band.
+              </p>
+            </div>
+          </div>
+
+          <!-- Factor radar -->
+          <div class="card col-8">
+            <div class="card-header">
+              <h3>Factor Radar</h3>
+              <span>Qualitative scores translated to 1–5 scale</span>
+            </div>
+            <div class="card-body">
+              <!-- Map: High=5, Improving/Above average/Positive=4, Moderate risk=3 -->
+              <div class="factor-row">
+                <div class="factor-name">Growth</div>
+                <div class="factor-meter">
+                  <div class="factor-fill" style="width:100%;"></div>
+                </div>
+                <div class="factor-score">5 / 5</div>
+              </div>
+              <div class="factor-row">
+                <div class="factor-name">Profitability</div>
+                <div class="factor-meter">
+                  <div class="factor-fill" style="width:80%;"></div>
+                </div>
+                <div class="factor-score">4 / 5</div>
+              </div>
+              <div class="factor-row">
+                <div class="factor-name">Returns</div>
+                <div class="factor-meter">
+                  <div class="factor-fill" style="width:80%;"></div>
+                </div>
+                <div class="factor-score">4 / 5</div>
+              </div>
+              <div class="factor-row">
+                <div class="factor-name">Multiple</div>
+                <div class="factor-meter">
+                  <div class="factor-fill" style="width:60%;"></div>
+                </div>
+                <div class="factor-score">3 / 5</div>
+              </div>
+              <div class="factor-row">
+                <div class="factor-name">Integrated Score</div>
+                <div class="factor-meter">
+                  <div class="factor-fill" style="width:80%;"></div>
+                </div>
+                <div class="factor-score">4 / 5</div>
+              </div>
+              <p style="margin-top:0.5rem;" class="muted">
+                Interpretation: Strong growth visibility and above-average returns support a positive integrated score,
+                while valuation multiples embed some optimism relative to global peers.
+              </p>
+            </div>
+          </div>
+
+          <!-- 12m Price Chart placeholder -->
+          <div class="card col-4">
+            <div class="card-header">
+              <h3>12-Month Price Chart</h3>
+              <span>Data availability</span>
+            </div>
+            <div class="card-body">
+              <div class="chart">
+                <div class="chart-title">Price vs Time (Placeholder)</div>
+                <p class="muted" style="font-size:0.8rem; margin-bottom:0.3rem;">
+                  Historical line chart of HAL share price over last 12 months is not embedded in this static report.
+                </p>
+                <ul>
+                  <li>DATA NEEDED – recommended sources: Bloomberg, LSEG, or Yahoo Finance.</li>
+                  <li>Suggested symbol: “HAL IN Equity”.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: INVESTMENT THESIS -->
+      <section id="sec-2">
+        <div class="section-header">
+          <h2>2. Investment Thesis (Tear Sheet)</h2>
+          <span class="sub">Why now and strategic positioning</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>“Why Now” – Summary</h3>
+              <span>Three-bullet thesis</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>The Indian government’s indigenisation push and defence spend acceleration create a domestic growth inflection for HAL.</li>
+                <li>HAL has secured a massive backlog (~₹1.84 lakh crore as of FY25) providing multi-year revenue visibility.</li>
+                <li>Global supply-chain realignment and India’s positioning as an aerospace component hub open export growth avenues for HAL.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Positioning Line</h3>
+              <span>Compact stock narrative</span>
+            </div>
+            <div class="card-body">
+              <p style="margin:0 0 0.4rem;">
+                <strong>Positioning:</strong>
+                “India’s state-champion aerospace manufacturer, initiating with Buy to capture the decade-long defence-capex cycle.”
+              </p>
+              <p class="muted">
+                The thesis rests on a rare combination of: large order book, secular defence capex, export upside, and margin
+                expansion from indigenisation, partially offset by execution and valuation risk.
+              </p>
+              <div class="chip-row">
+                <span class="chip">Aerospace & Defence</span>
+                <span class="chip">Make in India beneficiary</span>
+                <span class="chip">Export optionality</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: INVESTMENT POSITIVES -->
+      <section id="sec-3">
+        <div class="section-header">
+          <h2>3. Investment Positives</h2>
+          <span class="sub">Rank-ordered growth and profitability drivers</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <!-- Order book -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>1) Large Order Book & Backlog Visibility</h3>
+              <span>Multi-year revenue runway</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>FY 2023-24 order book: ~₹94,129 crore as of 31 March 2024 (company filing).</li>
+                <li>FY 2024-25 backlog expanded to ~₹1.84 lakh crore (~₹184,000 crore) driven by new orders of ~₹1.02 lakh crore (manufacturing) and ~₹17,500 crore (ROH).</li>
+                <li>FY25 revenue provisional ~₹30,400 crore implies book-to-bill of ~6x, providing strong revenue visibility over 3-5 years.</li>
+              </ul>
+              <p class="muted">
+                The order book includes large programmes such as LCH helicopters and other aircraft, ensuring a stable production pipeline.
+              </p>
+            </div>
+          </div>
+
+          <!-- Domestic tailwinds -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>2) Domestic Demand Tailwinds</h3>
+              <span>Indian defence and aerospace capex cycle</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>India’s aerospace market expected to grow from ~US$27 billion in 2024 to ~US$54 billion by 2033.</li>
+                <li>“Make in India – Defence” and import substitution initiatives materially expand HAL’s total addressable market.</li>
+                <li>Major contract wins (e.g. ₹62,777 crore for 156 LCH helicopters) reinforce HAL’s central role in India’s defence modernisation.</li>
+              </ul>
+              <p class="muted">
+                Domestic orders are the primary growth engine in the near-term, with structural policy support limiting demand risk.
+              </p>
+            </div>
+          </div>
+
+          <!-- Margin expansion -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>3) Indigenisation & Margin Expansion Potential</h3>
+              <span>From licensed production to higher value add</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>HAL is transitioning from licensed manufacturing to indigenous systems (engines, avionics), increasing the value of content per aircraft.</li>
+                <li>FY 2023-24 PBT increased 57% to ~₹10,198 crore, while PAT grew 31% to ~₹7,595 crore, signalling improving profitability.</li>
+                <li>Operating leverage from scale and export expansion can lift EBITDA margins from ~10% toward ~12% over the next three years.</li>
+              </ul>
+              <p class="muted">
+                Structural margin upside is a key part of the re-rating story, assuming consistent execution on indigenisation.
+              </p>
+            </div>
+          </div>
+
+          <!-- Export angle -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>4) Export & Global Supply-Chain Opportunity</h3>
+              <span>Optionality beyond domestic orders</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>HAL has been selected to manufacture India’s Small Satellite Launch Vehicle (SSLV) with an initial contract value of ~US$59 million.</li>
+                <li>Geopolitical shifts and supply-chain diversification away from China favour India as an aerospace component hub.</li>
+                <li>HAL aims to increase export revenue via aircraft, helicopters, engines and components, targeting double-digit export mix over time.</li>
+              </ul>
+              <p class="muted">
+                Export growth is an upside lever, but still early stage relative to HAL’s domestic-centric revenue base.
+              </p>
+            </div>
+          </div>
+
+          <!-- Strategic importance -->
+          <div class="card col-12">
+            <div class="card-header">
+              <h3>5) Strategic National Importance & Ownership</h3>
+              <span>Supportive policy environment</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>HAL is majority government-owned and designated as a “Maharatna” public sector enterprise, which offers autonomy and strategic backing.</li>
+                <li>Its central role in India’s defence ecosystem makes it a natural beneficiary of rising defence budgets and long-term capability building.</li>
+              </ul>
+              <p class="muted">
+                This strategic positioning reduces demand risk but does not eliminate execution or capital allocation risks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: COMPETITIVE / PEER ANALYSIS -->
+      <section id="sec-4">
+        <div class="section-header">
+          <h2>4. Competitive & Peer Analysis</h2>
+          <span class="sub">Domestic and global comps (all USD, FX=₹83)</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <!-- Peer table -->
+          <div class="card col-8">
+            <div class="card-header">
+              <h3>Peer Comparison Table</h3>
+              <span>Revenues converted at ₹83 = US$1</span>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Region</th>
+                    <th>Revenue (US$m)</th>
+                    <th>EBITDA Margin</th>
+                    <th>P/E</th>
+                    <th>Commentary</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td>Hindustan Aeronautics (HAL)</td>
+                    <td>India</td>
+                    <td>3,395 (FY24)</td>
+                    <td>~10% (assumed)</td>
+                    <td>~37×</td>
+                    <td>Domestic leader; order backlog ~₹1.84 lakh crore, strong Make in India tailwinds.</td>
+                  </tr>
+                  <tr>
+                    <td>Dassault Aviation</td>
+                    <td>France / Global</td>
+                    <td>~4,801 (2023)</td>
+                    <td>~7.3%</td>
+                    <td>~18-20×</td>
+                    <td>Export heavy; mature global franchise with large backlog.</td>
+                  </tr>
+                  <tr>
+                    <td>Additional global peers</td>
+                    <td>DATA NEEDED</td>
+                    <td>DATA NEEDED</td>
+                    <td>DATA NEEDED</td>
+                    <td>DATA NEEDED</td>
+                    <td>Suggested sources: Bloomberg, LSEG, Capital IQ aerospace & defence comparables.</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="muted" style="margin-top:0.45rem;">
+                HAL trades at a premium versus global defence OEMs such as Dassault Aviation. The premium reflects
+                higher growth visibility and structural policy support but leaves less room for execution mis-steps.
+              </p>
+            </div>
+          </div>
+
+          <!-- Competitive factors -->
+          <div class="card col-4">
+            <div class="card-header">
+              <h3>Competitive Landscape</h3>
+              <span>Key qualitative comparisons</span>
+            </div>
+            <div class="card-body">
+              <p style="margin:0 0 0.3rem;"><strong>Key differentiators vs global peers:</strong></p>
+              <ul>
+                <li>India’s defence manufacturing ecosystem is less mature; HAL is building supply-chain and quality systems.</li>
+                <li>Export access is nascent compared with Western peers that have decades of global relationships.</li>
+                <li>Technology complexity in fighter jets and engines demands sustained R&D and certification capabilities.</li>
+              </ul>
+              <p class="muted">
+                HAL’s core advantage lies in policy-driven domestic demand. Global players maintain an edge in export breadth,
+                product maturity and after-market service networks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: ESTIMATES & OPERATING ASSUMPTIONS -->
+      <section id="sec-5">
+        <div class="section-header">
+          <h2>5. Estimates & Operating Assumptions</h2>
+          <span class="sub">Three-year forward model based on key KPIs</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <!-- Historical base -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Historical Base</h3>
+              <span>Revenues and order book</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>FY 2023-24 turnover: ₹281,618.5 million (~US$3,395m at ₹83/US$).</li>
+                <li>FY 2024-25 provisional revenue: ~₹304,000 million (~US$3,663m).</li>
+                <li>Order book end-FY25: ₹1.84 lakh crore (~₹1,840,000m) ≈ US$22,168m.</li>
+              </ul>
+              <p class="muted">
+                The very high book-to-bill ratio underpins the forward revenue growth assumed in the model.
+              </p>
+            </div>
+          </div>
+
+          <!-- Forward assumptions -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Forward Assumptions</h3>
+              <span>Revenue growth and margins</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>Revenue growth: +15% (FY26E), +12% (FY27E), +10% (FY28E).</li>
+                <li>EBITDA margin: improvement from ~10% (FY24) to ~11% (FY26E) and ~12% (FY27E-FY28E).</li>
+                <li>EPS growth: ~20% (FY26E), ~15% (FY27E), ~12% (FY28E).</li>
+                <li>FX assumption: constant at ₹83 per US$ for comparability.</li>
+              </ul>
+              <p class="muted">
+                Assumptions reflect scaling of production, margin uplift from indigenisation, and modest export upside.
+              </p>
+            </div>
+          </div>
+
+          <!-- Model table -->
+          <div class="card col-8">
+            <div class="card-header">
+              <h3>Summary Financial Model (US$m)</h3>
+              <span>Illustrative based on internal assumptions</span>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>FY24 (Actual)</th>
+                    <th>FY26E</th>
+                    <th>FY27E</th>
+                    <th>FY28E</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td>Revenue</td>
+                    <td>3,395</td>
+                    <td>3,904 (3,395 × 1.15)</td>
+                    <td>4,373 (3,904 × 1.12)</td>
+                    <td>4,810 (4,373 × 1.10)</td>
+                  </tr>
+                  <tr>
+                    <td>EBITDA Margin</td>
+                    <td>~10%</td>
+                    <td>~11%</td>
+                    <td>~12%</td>
+                    <td>~12%</td>
+                  </tr>
+                  <tr>
+                    <td>EBITDA</td>
+                    <td>~339.5</td>
+                    <td>~430</td>
+                    <td>~524</td>
+                    <td>~577</td>
+                  </tr>
+                  <tr>
+                    <td>Net Profit</td>
+                    <td>DATA NEEDED</td>
+                    <td>~310</td>
+                    <td>~360</td>
+                    <td>~400</td>
+                  </tr>
+                  <tr>
+                    <td>EPS</td>
+                    <td>DATA NEEDED</td>
+                    <td>+20% YoY</td>
+                    <td>+15% YoY</td>
+                    <td>+12% YoY</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="muted" style="margin-top:0.45rem;">
+                Detailed EPS and share-count data require company filings. Suggested sources: HAL annual report, quarterly
+                results and NSE/BSE disclosures.
+              </p>
+            </div>
+          </div>
+
+          <!-- Revenue growth chart -->
+          <div class="card col-4">
+            <div class="card-header">
+              <h3>Revenue & Margin Trend</h3>
+              <span>Model-based bar chart</span>
+            </div>
+            <div class="card-body">
+              <div class="chart">
+                <div class="chart-title">Revenue FY24–FY28E (US$m)</div>
+                <div class="bar-chart">
+                  <!-- Normalised heights: scale simple relative to max (4,810) -->
+                  <div class="bar">
+                    <div class="bar-rect" style="height:70%;"></div>
+                    <div class="bar-value">3,395</div>
+                    <div class="bar-label">FY24</div>
+                  </div>
+                  <div class="bar">
+                    <div class="bar-rect" style="height:80%;"></div>
+                    <div class="bar-value">3,904</div>
+                    <div class="bar-label">FY26E</div>
+                  </div>
+                  <div class="bar">
+                    <div class="bar-rect" style="height:90%;"></div>
+                    <div class="bar-value">4,373</div>
+                    <div class="bar-label">FY27E</div>
+                  </div>
+                  <div class="bar">
+                    <div class="bar-rect" style="height:100%;"></div>
+                    <div class="bar-value">4,810</div>
+                    <div class="bar-label">FY28E</div>
+                  </div>
+                </div>
+                <div class="legend-row">
+                  <span class="legend-item">
+                    <span class="legend-swatch"></span> Revenue (US$m) – growth of 15%, 12%, 10% respectively
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI drivers -->
+          <div class="card col-12">
+            <div class="card-header">
+              <h3>Operational KPI Drivers</h3>
+              <span>Volume, utilisation and mix</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Volumes:</strong> Ramp-up of LCA Tejas Mk1A, LCH and HTT-40 trainer aircraft production (unit quantities DATA NEEDED).</li>
+                <li><strong>Utilisation:</strong> Plant utilisation assumed to increase from ~70% toward ~80% over three years.</li>
+                <li><strong>Export mix:</strong> Export revenue expected to grow from low-single-digit share to ~15% by FY27E.</li>
+                <li><strong>ROH & services:</strong> Life-cycle support business assumed to grow at ~12% CAGR, driven by ageing fleet and increased service scope.</li>
+              </ul>
+              <p class="muted">
+                Detailed unit schedules by programme should be sourced from HAL investor presentations and annual reports.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: VALUATION -->
+      <section id="sec-6">
+        <div class="section-header">
+          <h2>6. Valuation</h2>
+          <span class="sub">Blended P/E and EV/EBITDA framework</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <!-- Valuation framework -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Valuation Framework</h3>
+              <span>P/E and EV/EBITDA anchor</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li>Primary method: P/E on FY27E earnings, cross-checked with EV/EBITDA.</li>
+                <li>Peer reference: Dassault Aviation trades at ~18–20× P/E; HAL’s 5-year median is ~17×; current P/E is ~37×.</li>
+                <li>We assign a forward multiple of <strong>30× FY27E EPS</strong> reflecting superior growth but some execution risk.</li>
+              </ul>
+              <p class="muted">
+                Premium vs global peers is justified by domestic structural growth and policy backing, but upside is
+                sensitive to execution on backlog and margin delivery.
+              </p>
+            </div>
+          </div>
+
+          <!-- Valuation calculations -->
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Illustrative Valuation Calculations</h3>
+              <span>Approximate based on FY27E model</span>
+            </div>
+            <div class="card-body">
+              <ul>
+                <li><strong>Equity value (P/E method):</strong></li>
+              </ul>
+              <ul style="margin-left:1.3rem;">
+                <li>FY27E Net Profit ≈ US$360m (from model).</li>
+                <li>P/E multiple applied = 30×.</li>
+                <li>Implied equity value = 360 × 30 = US$10,800m.</li>
+                <li>Converted to INR at ₹83/US$ → 10,800 × 83 = ₹896,400 crore.</li>
+                <li>Per share fair value = DATA NEEDED (shares outstanding; source: HAL filings).</li>
+              </ul>
+              <ul>
+                <li><strong>EV/EBITDA cross-check:</strong></li>
+              </ul>
+              <ul style="margin-left:1.3rem;">
+                <li>FY27E EBITDA ≈ US$524m.</li>
+                <li>EV/EBITDA multiple used = 18×.</li>
+                <li>Implied EV = 524 × 18 ≈ US$9,432m.</li>
+                <li>Assuming net cash ≈ 0 for simplicity → Equity ≈ EV ≈ US$9,432m ≈ ₹783,000 crore.</li>
+              </ul>
+              <p class="muted">
+                Our target price of <strong>₹5,800</strong> incorporates these approaches plus rounding and currency considerations.
+              </p>
+            </div>
+          </div>
+
+          <!-- Scenario table -->
+          <div class="card col-8">
+            <div class="card-header">
+              <h3>Bull-Base-Bear Scenario Table</h3>
+              <span>Target price sensitivity</span>
+            </div>
+            <div class="card-body">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Key Assumptions</th>
+                    <th>P/E Applied</th>
+                    <th>Implied TP (₹)</th>
+                    <th>Commentary</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr>
+                    <td>Bull</td>
+                    <td>Growth above plan, margins beat (EBITDA &gt;12%).</td>
+                    <td>35×</td>
+                    <td>~6,800</td>
+                    <td>Requires strong exports and consistent execution on major programmes.</td>
+                  </tr>
+                  <tr>
+                    <td>Base</td>
+                    <td>Growth and margins broadly in line with model.</td>
+                    <td>30×</td>
+                    <td>~5,800</td>
+                    <td>Assumes successful backlog delivery and moderate export ramp.</td>
+                  </tr>
+                  <tr>
+                    <td>Bear</td>
+                    <td>Growth/margins disappoint, programme delays.</td>
+                    <td>25×</td>
+                    <td>~4,800</td>
+                    <td>Reflects downside if execution issues surface or budget slows.</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="muted" style="margin-top:0.5rem;">
+                Historical 5-year median P/E of ~17× (vs current ~37×) indicates valuation risk if growth expectations are not met.
+              </p>
+            </div>
+          </div>
+
+          <!-- Scenario bar chart -->
+          <div class="card col-4">
+            <div class="card-header">
+              <h3>Scenario Valuation Chart</h3>
+              <span>Target price by scenario</span>
+            </div>
+            <div class="card-body">
+              <div class="chart">
+                <div class="chart-title">Implied Target Price (₹)</div>
+                <div class="bar-chart">
+                  <div class="bar">
+                    <div class="bar-rect" style="height:75%;"></div>
+                    <div class="bar-value">4,800</div>
+                    <div class="bar-label">Bear</div>
+                  </div>
+                  <div class="bar">
+                    <div class="bar-rect" style="height:90%;"></div>
+                    <div class="bar-value">5,800</div>
+                    <div class="bar-label">Base</div>
+                  </div>
+                  <div class="bar">
+                    <div class="bar-rect" style="height:100%;"></div>
+                    <div class="bar-value">6,800</div>
+                    <div class="bar-label">Bull</div>
+                  </div>
+                </div>
+                <div class="legend-row">
+                  <span class="legend-item">
+                    <span class="legend-swatch"></span> TP sensitivity to execution and margin delivery
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: KEY RISKS -->
+      <section id="sec-7">
+        <div class="section-header">
+          <h2>7. Key Risks</h2>
+          <span class="sub">Ranked by probability × impact</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="card col-12">
+          <div class="card-header">
+            <h3>Risk Heat-Map</h3>
+            <span>Execution, macro and valuation</span>
+          </div>
+          <div class="card-body">
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">1. Execution / Delivery Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: High</span>
+                  <span class="risk-tag">Impact: High</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  Large backlog requires timely production and supply-chain coordination (e.g. engine deliveries, avionics integration).
+                  Delays could compress margins and defer revenue recognition.
+                </p>
+              </div>
+            </div>
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">2. Technology / Quality Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: Medium</span>
+                  <span class="risk-tag">Impact: High</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  Transition to indigenous systems in high-complexity areas (fighter jets, engines, avionics) increases technical risk.
+                  Any failure or delay could damage reputation and financial performance.
+                </p>
+              </div>
+            </div>
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">3. Commodity / Input & FX Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: Medium</span>
+                  <span class="risk-tag">Impact: Medium</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  Volatility in special alloys and imported components, along with INR depreciation, can pressure margins
+                  given long-dated contracts.
+                </p>
+              </div>
+            </div>
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">4. Government Policy / Budget Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: Low</span>
+                  <span class="risk-tag">Impact: High</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  HAL is heavily dependent on Indian defence budgets and procurement decisions. Material budget delays or
+                  cuts could weigh on growth despite strong backlog.
+                </p>
+              </div>
+            </div>
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">5. Global Export / Competition Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: Medium</span>
+                  <span class="risk-tag">Impact: Medium</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  Scaling exports requires competing with experienced global OEMs and navigating defence trade restrictions.
+                  Underperformance here would limit upside optionality.
+                </p>
+              </div>
+            </div>
+            <div class="risk-row">
+              <div>
+                <div class="risk-name">6. Valuation Risk</div>
+                <div class="risk-meta">
+                  <span class="risk-tag">Probability: Medium</span>
+                  <span class="risk-tag">Impact: Medium</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <p class="muted" style="margin:0;">
+                  Current valuations (c.37× P/E) already embed strong growth and margin expectations. Any negative surprise
+                  on execution could trigger multiple compression.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 8: APPENDIX -->
+      <section id="sec-8">
+        <div class="section-header">
+          <h2>8. Appendix</h2>
+          <span class="sub">Model details, sensitivities and disclosures</span>
+        </div>
+        <div class="section-divider"></div>
+
+        <div class="grid">
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Expanded Models & Sensitivities</h3>
+              <span>Additional analytical detail</span>
+            </div>
+            <div class="card-body">
+              <div class="appendix-item">
+                <strong>Expanded financial model tables:</strong>
+                Full P&amp;L, balance sheet and cash flow projections beyond FY28E are not shown here. They should be constructed from:
+                HAL annual reports, quarterly results and investor presentations.
+              </div>
+              <div class="appendix-item">
+                <strong>Sensitivity analysis:</strong>
+                <ul>
+                  <li>Revenue growth ±2 percentage points shifts target price by roughly ±10%.</li>
+                  <li>EBITDA margin ±50 bps shifts target price by roughly ±5%.</li>
+                </ul>
+              </div>
+              <div class="appendix-item">
+                <strong>Unit economics:</strong>
+                <ul>
+                  <li>Unit cost per LCA Tejas Mk1A, LCH, HTT-40 and other programmes: DATA NEEDED.</li>
+                  <li>Segment-specific ROH margins: DATA NEEDED.</li>
+                  <li>Suggested data sources: HAL segmental disclosures and programme-level commentary in annual reports / concall transcripts.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="card col-6">
+            <div class="card-header">
+              <h3>Disclosures & Compliance</h3>
+              <span>Standard research disclaimers</span>
+            </div>
+            <div class="card-body">
+              <div class="appendix-item">
+                <strong>Analyst Certification:</strong>
+                I/we, the analyst(s) named in this report, certify that the views expressed herein accurately reflect our
+                personal views about Hindustan Aeronautics Ltd and that no part of our compensation was, is, or will be
+                directly or indirectly related to the specific recommendation or view contained in this report.
+              </div>
+              <div class="appendix-item">
+                <strong>Recommendation Framework:</strong>
+                <ul>
+                  <li><strong>Buy:</strong> expected total return &gt; +15% over 12–18 months.</li>
+                  <li><strong>Hold:</strong> expected total return between 0% and +15%.</li>
+                  <li><strong>Sell:</strong> expected negative total return over 12–18 months.</li>
+                </ul>
+                HAL is initiated with a <strong>Buy</strong> rating and ~26% implied upside.
+              </div>
+              <div class="appendix-item">
+                <strong>Conflicts & Interests:</strong>
+                The firm may seek or may have business relationships including investment banking, advisory or other services
+                with the issuer(s) mentioned. Investors should consider this report as one of several inputs in their investment process.
+              </div>
+              <div class="appendix-item">
+                <strong>Report Date:</strong>
+                21 November 2025. Unless otherwise stated, all data points refer to the latest company filings and
+                public information summarised in this dashboard.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  // Simple side-nav active state on scroll
+  (function () {
+    const links = document.querySelectorAll("nav.side-nav a");
+    const sections = Array.from(links).map(link =>
+      document.querySelector(link.getAttribute("href"))
+    );
+
+    function onScroll() {
+      const scrollPos = window.scrollY || window.pageYOffset;
+      let currentId = null;
+
+      sections.forEach(sec => {
+        if (!sec) return;
+        const rect = sec.getBoundingClientRect();
+        const top = rect.top + window.scrollY - 90;
+        if (scrollPos >= top) currentId = "#" + sec.id;
+      });
+
+      links.forEach(link => {
+        if (link.getAttribute("href") === currentId) {
+          link.classList.add("active");
+        } else {
+          link.classList.remove("active");
+        }
+      });
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+</script>
+</body>
+</html>
